@@ -1,0 +1,15 @@
+[package]
+name = "sui-by-example"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sui-sdk = { git = "https://github.com/mystenlabs/sui", package = "sui-sdk"}
+tokio = { version = "1.2", features = ["full"] }
+anyhow = "1.0"
+
+[[bin]]
+name = "01_read_latest_checkpoint"
+path = "src/01_read_latest_checkpoint/bin/main.rs"
