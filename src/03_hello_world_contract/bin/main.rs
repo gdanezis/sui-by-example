@@ -1,5 +1,5 @@
 use shared_crypto::intent::Intent;
-use std::{any::Any, env};
+use std::env;
 use sui_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use sui_sdk::{
     rpc_types::{SuiObjectDataOptions, SuiObjectResponseQuery, SuiTransactionBlockResponseOptions},
@@ -9,10 +9,9 @@ use sui_sdk::{
         Identifier,
     },
     types::{
-        object::Owner,
         programmable_transaction_builder::ProgrammableTransactionBuilder,
         quorum_driver_types::ExecuteTransactionRequestType,
-        transaction::{Argument, Command, Transaction, TransactionData},
+        transaction::{Command, Transaction, TransactionData},
     },
     SuiClientBuilder,
 };
@@ -38,6 +37,9 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let my_address = keystore.addresses()[0];
     println!("My address: {}", my_address);
+
+    // Get all my own objects
+
     let coins_response = &sui_local
         .read_api()
         .get_owned_objects(
@@ -50,6 +52,8 @@ async fn main() -> Result<(), anyhow::Error> {
         )
         .await?;
 
+    // See if an existing Timestamp station exists
+
     let existing_station = coins_response.data.iter().find(|obj| {
         let type_name = obj
             .data
@@ -61,6 +65,8 @@ async fn main() -> Result<(), anyhow::Error> {
             .to_string();
         type_name == format!("{}::timestamp::TimestampStation", package_id)
     });
+
+    // Find a coin to use
 
     let coin = coins_response
         .data
@@ -105,29 +111,18 @@ async fn main() -> Result<(), anyhow::Error> {
         )
     };
 
-    // Timestamp hash 1
-
-    let hash1 = ptb.pure(vec![0xAAu8; 32])?;
-
-    ptb.command(Command::move_call(
-        package_id,
-        Identifier::new("timestamp")?,
-        Identifier::new("commit_hash")?,
-        vec![],
-        vec![clock_input, station, hash1],
-    ));
-
-    // Timestamp hash 2
-
-    let hash2 = ptb.pure(vec![0xBBu8; 32])?;
-
-    ptb.command(Command::move_call(
-        package_id,
-        Identifier::new("timestamp")?,
-        Identifier::new("commit_hash")?,
-        vec![],
-        vec![clock_input, station, hash2],
-    ));
+    assert!(args.len() > 2, "At least one item must be provided");
+    for item in args.iter().skip(2) {
+        let item = item.as_bytes();
+        let item = ptb.pure(item)?;
+        ptb.command(Command::move_call(
+            package_id,
+            Identifier::new("timestamp")?,
+            Identifier::new("commit_hash")?,
+            vec![],
+            vec![clock_input, station, item],
+        ));
+    }
 
     // Send the new timestamp station to ourselves for future use
 
@@ -142,6 +137,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let gas_budget = 5_000_000;
     let gas_price = sui_local.read_api().get_reference_gas_price().await?;
+
     // create the transaction data that will be sent to the network
     let tx_data = TransactionData::new_programmable(
         my_address,
