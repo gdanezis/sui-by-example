@@ -7,9 +7,19 @@ edition = "2021"
 
 [dependencies]
 sui-sdk = { git = "https://github.com/mystenlabs/sui", package = "sui-sdk"}
+sui-keys = { git = "https://github.com/mystenlabs/sui", package = "sui-keys"}
+shared-crypto = { git = "https://github.com/mystenlabs/sui", package = "shared-crypto"}
 tokio = { version = "1.2", features = ["full"] }
 anyhow = "1.0"
 
 [[bin]]
 name = "01_read_latest_checkpoint"
 path = "src/01_read_latest_checkpoint/bin/main.rs"
+
+[[bin]]
+name = "02_read_latest_object"
+path = "src/02_read_latest_object/bin/main.rs"
+
+[[bin]]
+name = "03_hello_world_contract"
+path = "src/03_hello_world_contract/bin/main.rs"
