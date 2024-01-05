@@ -1,5 +1,9 @@
 use std::env;
-use sui_sdk::{rpc_types::SuiObjectDataOptions, types::{base_types::ObjectID, object::Owner}, SuiClientBuilder};
+use sui_sdk::{
+    rpc_types::SuiObjectDataOptions,
+    types::{base_types::ObjectID, object::Owner},
+    SuiClientBuilder,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -42,11 +46,13 @@ async fn main() -> Result<(), anyhow::Error> {
         version, previous_transaction
     );
     inner_object.owner.map(|owner| {
-        
-        if let Owner::Shared { initial_shared_version } = owner {
+        if let Owner::Shared {
+            initial_shared_version,
+        } = owner
+        {
             println!("Shared at initial version: {}", initial_shared_version);
         }
-        
+
         println!("Owner: {}", owner);
     });
 

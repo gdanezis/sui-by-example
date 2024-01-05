@@ -3,19 +3,27 @@ use std::env;
 use sui_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use sui_sdk::{
     rpc_types::{SuiObjectDataOptions, SuiObjectResponseQuery, SuiTransactionBlockResponseOptions},
-    types::Identifier,
+    types::{base_types::ObjectID, transaction::ObjectArg, Identifier},
     types::{
         programmable_transaction_builder::ProgrammableTransactionBuilder,
         quorum_driver_types::ExecuteTransactionRequestType,
-        transaction::{Transaction, TransactionData},
+        transaction::{Command, Transaction, TransactionData},
     },
     SuiClientBuilder,
 };
 
-const PACKAGE_ID_CONST: &str = "0x74246e5987c3b20aeed158bd01620f86b50602c4970a33c3b3570018b74286a9";
+// Call using:
+// $ cargo run --bin 04_shared_object_transaction ~/.sui/sui_config/sui.keystore 0x0d69a64f09fd9587588bf744345da5b84c0c42a4f7d73e4b79348c4f8be9e721
 
-// The Sui mainnet address of the package by the way is:
+const PACKAGE_ID_CONST: &str = "0x74246e5987c3b20aeed158bd01620f86b50602c4970a33c3b3570018b74286a9";
+const TROPHY_STATION_ID: &str =
+    "0x3d987e06da12d9e20bc8c09dae2f04e14df96d75ecf0542c910f026c5842670c";
+const TROPHY_STATION_VERSION: u64 = 3;
+
+// The Sui mainnet address of the package and trophy station by the way is:
 // const PACKAGE_ID_CONST: &str = "0x279525274aa623ef31a25ad90e3b99f27c8dbbad636a6454918855c81d625abc";
+// const TROPHY_STATION_ID: &str = "0xea590d6ad1322f8245b84019441cf4d3b438032cb0bc7857d7892adc267ff401";
+// const TROPHY_STATION_VERSION: u64 = 30622213;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -57,17 +65,34 @@ async fn main() -> Result<(), anyhow::Error> {
         .unwrap();
     let coin = coin.data.as_ref().unwrap();
 
+    // Get the latest reference for the trophy object
+    let trophy_object_id: ObjectID = args[2].parse()?;
+    let trophy_object = sui_local
+        .read_api()
+        .get_object_with_options(trophy_object_id, SuiObjectDataOptions::default())
+        .await?
+        .data
+        .unwrap();
+
     // Make a Programmable Transaction Block with 1 transaction inside
 
     let mut ptb = ProgrammableTransactionBuilder::new();
 
-    ptb.move_call(
+    let trophy_station_input = ptb.obj(ObjectArg::SharedObject {
+        id: TROPHY_STATION_ID.parse()?,
+        initial_shared_version: TROPHY_STATION_VERSION.into(),
+        mutable: true,
+    })?;
+
+    let trophy_input = ptb.obj(ObjectArg::ImmOrOwnedObject(trophy_object.object_ref()))?;
+
+    ptb.command(Command::move_call(
         package_id,
         Identifier::new("dev_trophy")?,
-        Identifier::new("self_award_trophy")?,
+        Identifier::new("stamp_trophy")?,
         vec![],
-        vec![],
-    )?;
+        vec![trophy_station_input, trophy_input],
+    ));
 
     let builder = ptb.finish();
 
