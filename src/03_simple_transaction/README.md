@@ -120,7 +120,7 @@ The rust code calls the `self_award_trophy` to award itself a `SuiDevTrophy`. It
 
 * We then add some metadata about the gas cost, gas coin (as identified above) and sign the transaction. The gas price is just the reference gas price given by `read_api().get_reference_gas_price()`. We sign the transaction using the local client key `keystore.sign_secure( ... )`.
 
-* The finale involves executing the transaction using the quorum driver API, using `sui_local.quorum_driver_api().execute_transaction_block( ... )`. The `ExecuteTransactionRequestType::WaitForLocalExecution` option is the most conservative and waits for local execution to be finished before returning (rather than returning as soon as the transaction is final).
+* The finale involves executing the transaction using the quorum driver API, using `sui_local.quorum_driver_api().execute_transaction_block( ... )`. The `ExecuteTransactionRequestType::WaitForLocalExecution` option is the most conservative and waits for local execution to be finished before returning (rather than returning as soon as the transaction is final). The [Rust SDK docs for Quorum Driver](https://mystenlabs.github.io/sui/sui_sdk/apis/struct.QuorumDriverApi.html) say a little more about it.
 
 ## Security concerns
 
