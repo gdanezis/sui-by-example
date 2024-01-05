@@ -15,7 +15,7 @@ In this example we look at our first Move smart contract and how to execute a si
 
 ## Setup
 
-* To initialize a local wallet and local network we follow the [instructions in the docs](https://docs.sui.io/guides/developer/getting-started/local-network). Broadly speaking we need to [clone the `mainnet` branch of the sui repository](https://github.com/MystenLabs/sui/tree/mainnet), and then start a local network through the command:
+* To initialize a local wallet and local network we follow the [instructions in the docs to install Sui](https://docs.sui.io/guides/developer/getting-started/sui-install) and [start a local network](https://docs.sui.io/guides/developer/getting-started/local-network). Broadly speaking we need to [clone the `mainnet` branch of the sui repository](https://github.com/MystenLabs/sui/tree/mainnet), and then start a local network through the command:
 ```
 $ RUST_LOG="off,sui_node=info" cargo run --bin sui-test-validator
 
