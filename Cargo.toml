@@ -21,5 +21,9 @@ name = "02_read_latest_object"
 path = "src/02_read_latest_object/bin/main.rs"
 
 [[bin]]
-name = "03_hello_world_contract"
-path = "src/03_hello_world_contract/bin/main.rs"
+name = "03_simple_transaction"
+path = "src/03_simple_transaction/bin/main.rs"
+
+[[bin]]
+name = "XX_hello_world_contract"
+path = "src/XX_hello_world_contract/bin/main.rs"
