@@ -12,6 +12,8 @@ The Sui blockchain state is a set of objects that are either owned by particular
 
 * All objects have a Move *type* that describes their layout, in terms of field types and names. These types come from the move system libraries, or from user-define smart contacts in the Move language. Printing an object in JSON requires its type, but the full nodes can do this for you.
 
+* Objects contain the reference to the *previous transaction* that last modified them or created them.
+
 ## Setup
 
 Running the example involves simply running the binary `02_read_latest_object` with one command line argument representing the ID of the object to look up.
