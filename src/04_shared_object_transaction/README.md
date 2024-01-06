@@ -23,6 +23,22 @@ $ cargo run --bin 04_shared_object_transaction ~/.sui/sui_config/sui.keystore 0x
 
 ## Code details
 
+Let's talk about the functions `stamp_trophy` and `drop_trophy` in Move package and module `hello_dev_trophy::dev_trophy` from example 03.
+
+* The function `stamp_trophy` takes the singleton `TrophyStation` as a first argument, and an owned object of type `SuiDevTrophy` and updates its fields with a sequence number. This can happen only once so it uses an `assert!( ... )` to abort if there is already a sequence number. Note that both objects are passed as mutable references ie. `&mut ...` so the function can change their contents but not drop them.
+
+* Note that the module defines an event of type `AwardEvent` that is emitted when a valid stamp is awarded to a trophy using the system function `event::emit`. We discuss events and their used in the next example. 
+
+* The function `drop_trophy` cleans up unwanted and unloved `SuiDevTrophy` objects you may own. Note that `SuiDevTrophy` has no `drop` ability due to `UID` not having the drop ability. This is a typical issue for all objects with `UID`. So to allow users to drop it we have to make a specific function that deconstructs the object, and manually calls the destructor of `UID`:
+
+```
+    public fun drop_trophy(trophy : SuiDevTrophy) {
+        let SuiDevTrophy { id, seq_from_station: _ , trophy_sender: _ } = trophy;
+        // This deletes the UID which otherwise cannot be dropped.
+        object::delete(id);
+    }
+```
+
 This example Rust code follows the setup of example 03, and with a few notable exceptions when it comes to calling the function `stamp_trophy`. 
 
 * We use a call to `.read_api().get_object_with_options( ... )`, with minimal default options to look up the `SuiDevTrophy` object with the given object ID. Then we use `trophy_object.object_ref()` to get the reference corresponding to the latest version of the object in the test Sui network. It is typical to at least refresh the references to local copies of the objects from the network before a transactions. IT IS IMPERATIVE TO NEVER CONCURRENTLY USE THE SAME OBJECT REFERENCE IN DIFFERENT TRANSACTION.

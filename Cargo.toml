@@ -29,5 +29,9 @@ name = "04_shared_object_transaction"
 path = "src/04_shared_object_transaction/bin/main.rs"
 
 [[bin]]
+name = "05_reading_events"
+path = "src/05_reading_events/bin/main.rs"
+
+[[bin]]
 name = "XX_hello_world_contract"
 path = "src/XX_hello_world_contract/bin/main.rs"
