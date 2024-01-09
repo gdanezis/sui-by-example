@@ -6273,6 +6273,7 @@ name = "sui-by-example"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "sha2 0.10.8",
  "shared-crypto",
  "sui-keys",
  "sui-sdk",

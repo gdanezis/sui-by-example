@@ -16,7 +16,9 @@ use sui_sdk::{
     SuiClientBuilder,
 };
 
-const PACKAGE_ID_CONST: &str = "0x28c13a4d04b02febc5713d67ab8709aa3d40232c043646e22bc58447379d2e20";
+use sha2::{Sha256, Digest};
+
+const PACKAGE_ID_CONST: &str = "0xf7d900c1cf38000c3c39e822d3bf3926df4db6b4a5539c08f053870118710dd8";
 const CLOCK_OBJ_ID: &str = "0x0000000000000000000000000000000000000000000000000000000000000006";
 const CLOCK_INITIAL_VERSION: u64 = 1;
 
@@ -34,12 +36,9 @@ async fn main() -> Result<(), anyhow::Error> {
     println!("Sui local version: {}", sui_local.api_version());
 
     let package_id = PACKAGE_ID_CONST.parse()?;
-
     let my_address = keystore.addresses()[0];
-    println!("My address: {}", my_address);
 
     // Get all my own objects
-
     let coins_response = &sui_local
         .read_api()
         .get_owned_objects(
@@ -52,22 +51,7 @@ async fn main() -> Result<(), anyhow::Error> {
         )
         .await?;
 
-    // See if an existing Timestamp station exists
-
-    let existing_station = coins_response.data.iter().find(|obj| {
-        let type_name = obj
-            .data
-            .as_ref()
-            .unwrap()
-            .type_
-            .as_ref()
-            .unwrap()
-            .to_string();
-        type_name == format!("{}::timestamp::TimestampStation", package_id)
-    });
-
     // Find a coin to use
-
     let coin = coins_response
         .data
         .iter()
@@ -76,12 +60,10 @@ async fn main() -> Result<(), anyhow::Error> {
     let coin = coin.data.as_ref().unwrap();
 
     // Get the clock object
-
     let clock_id: ObjectID = CLOCK_OBJ_ID.parse()?;
     let initial_shared_version = SequenceNumber::from(CLOCK_INITIAL_VERSION);
 
     // Make a Programmable Transaction Block
-
     let mut ptb = ProgrammableTransactionBuilder::new();
 
     let clock_input = ptb.obj(ObjectArg::SharedObject {
@@ -90,51 +72,27 @@ async fn main() -> Result<(), anyhow::Error> {
         mutable: false,
     })?;
 
-    // Create a new timestamp station, or use existing one
-
-    let (station, save) = if let Some(existing_object) = existing_station {
-        let object = existing_object.data.as_ref().unwrap();
-        (
-            ptb.obj(ObjectArg::ImmOrOwnedObject(object.object_ref()))?,
-            false,
-        )
-    } else {
-        (
-            ptb.command(Command::move_call(
-                package_id,
-                Identifier::new("timestamp")?,
-                Identifier::new("create_timestamp_station")?,
-                vec![],
-                vec![],
-            )),
-            true,
-        )
-    };
-
     assert!(args.len() > 2, "At least one item must be provided");
-    for item in args.iter().skip(2) {
-        let item = item.as_bytes();
-        let item = ptb.pure(item)?;
+    for item_path in args.iter().skip(2) {
+        // Interpret the item as a file path and read the contents of the file
+        let item = std::fs::read(item_path)?;
+
+        // Sha256 hash the item
+        let item_hash = Sha256::digest(item);
+
+        let item_argument = ptb.pure(&item_hash[..])?;
         ptb.command(Command::move_call(
             package_id,
             Identifier::new("timestamp")?,
             Identifier::new("commit_hash")?,
             vec![],
-            vec![clock_input, station, item],
+            vec![clock_input, item_argument],
         ));
-    }
-
-    // Send the new timestamp station to ourselves for future use
-
-    if save {
-        let recipient_address = ptb.pure(my_address)?;
-        ptb.command(Command::TransferObjects(vec![station], recipient_address));
     }
 
     let builder = ptb.finish();
 
     // Build the transaction data
-
     let gas_budget = 5_000_000;
     let gas_price = sui_local.read_api().get_reference_gas_price().await?;
 

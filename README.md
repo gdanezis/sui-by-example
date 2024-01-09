@@ -11,7 +11,7 @@ The repo contains a few examples of Sui applications written using the Rust SDK.
 - [03](/src/03_simple_transaction/): How to write a Move smart contract, and execute a transaction on it.
 - [04](/src/04_shared_object_transaction/): How to pass arguments to transactions and use shared objects.
 - [05](/src/05_reading_events/): How to use and read events emitted by smart contracts.
-- [XX](/src/XX_hello_world_contract/): How to construct more complex Programmable Transaction Blocks.
+- [06](/src/06_clock/): How to use the clock to get real time and make a timestamp service.
 - ... TBD ...
 
 ## Installation
