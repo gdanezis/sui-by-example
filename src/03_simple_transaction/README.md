@@ -134,8 +134,11 @@ As before the reads from the full node on the read API are not authenticated.
 $ sui move new hello_dev_trophy
 ```
 
+* Best way to start learning Sui move is the Sui foundation tutorial: https://github.com/sui-foundation/sui-move-intro-course
+
 * Move documentation is very handy:
   - The base Move book: https://move-language.github.io/move/
+  - Basic move tutorial: https://github.com/move-language/move/blob/main/language/documentation/tutorial/README.md
   - The Sui Move book by example: https://examples.sui.io/
   - The Sui Move framework reference is here: https://github.com/MystenLabs/sui/tree/main/crates/sui-framework/docs
 
