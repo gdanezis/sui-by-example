@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The repo contains a few examples of Sui applications written using the Rust SDK. The examples come with `README.md` files explaining step-by-step key Sui and blockchain contexts, references to more documentation, as well as instructions for configuring the environments and running them.
+The repo contains a few examples of Sui applications written using the **Rust SDK**. The examples come with `README.md` files explaining step-by-step key Sui and blockchain contexts, references to more documentation, as well as instructions for configuring the environments and running them.
 
 ## Outline
 
@@ -16,4 +16,4 @@ The repo contains a few examples of Sui applications written using the Rust SDK.
 
 ## Installation
 
-You will need a working rust installation with cargo and all. You probably also need an [installation of Sui](https://docs.sui.io/guides/developer/getting-started/sui-install) to follow after example 03.
+You will need a working rust installation with cargo and all. You probably also need an [installation of Sui](https://docs.sui.io/guides/developer/getting-started/sui-install) to follow example 03 and beyond.
