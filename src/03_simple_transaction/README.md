@@ -106,16 +106,16 @@ The rust code calls the `self_award_trophy` to award itself a `SuiDevTrophy`. It
 
 * The `.read_api().get_owned_objects` is used to get all objects owned by our local client, and then we filter out the first Sui coin object that can be used as a gas object using the handy `is_gas_coin`. To make this work we have to download the types of the objects using `SuiObjectDataOptions::new().with_type()` above.
 
-* This is where things get exciting: we define a TPB using `ProgrammableTransactionBuilder::new()` and then use a single call with no type arguments or call arguments:
+* This is where things get exciting: we define a TPB using `ProgrammableTransactionBuilder::new()` and then use a single command call with no type arguments or call arguments:
 
 ```
-    ptb.move_call(
+    ptb.command(Command::move_call(
         package_id,
         Identifier::new("dev_trophy")?,
         Identifier::new("self_award_trophy")?,
         vec![],
         vec![],
-    )?;
+    ));
 ```
 
 * We then add some metadata about the gas cost, gas coin (as identified above) and sign the transaction. The gas price is just the reference gas price given by `read_api().get_reference_gas_price()`. We sign the transaction using the local client key `keystore.sign_secure( ... )`.

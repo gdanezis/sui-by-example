@@ -7,7 +7,7 @@ use sui_sdk::{
     types::{
         programmable_transaction_builder::ProgrammableTransactionBuilder,
         quorum_driver_types::ExecuteTransactionRequestType,
-        transaction::{Transaction, TransactionData},
+        transaction::{Transaction, Command, TransactionData},
     },
     SuiClientBuilder,
 };
@@ -61,13 +61,13 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let mut ptb = ProgrammableTransactionBuilder::new();
 
-    ptb.move_call(
+    ptb.command(Command::move_call(
         package_id,
         Identifier::new("dev_trophy")?,
         Identifier::new("self_award_trophy")?,
         vec![],
         vec![],
-    )?;
+    ));
 
     let builder = ptb.finish();
 
